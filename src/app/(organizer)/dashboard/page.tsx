@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { PrismaClient } from "@prisma/client";
+import { auth } from "@clerk/nextjs/server";
 
 const prisma = new PrismaClient();
 
 async function getDashboardData() {
-  // TODO: Ajouter le filtre par organisateur quand l'auth sera configurée
-  // where: { organizer: { clerkId: await getCurrentUserId() } },
   const tournaments = await prisma.tournament.findMany({
+    where: { organizer: { clerkId: await getCurrentUserId() } },
     include: {
       _count: { select: { teams: true } },
       teams: {
@@ -178,3 +178,13 @@ export default async function DashboardPage() {
     </main>
   );
 }
+async function getCurrentUserId(): Promise<string> {
+  const { userId } = await auth();
+
+  if (!userId) {
+    throw new Error("User not authenticated.");
+  }
+
+  return userId;
+}
+
