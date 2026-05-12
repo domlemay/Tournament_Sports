@@ -40,4 +40,11 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# AI agent config files
+AGENTS.md
+CLAUDE.md
+.claude/
+.cursor/
+.aider*
+
 /app/generated/prisma
