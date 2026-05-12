@@ -1,5 +1,6 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
+import type { Role } from "@prisma/client";
 
 export async function getCurrentUser() {
     const { userId } = await auth();
@@ -25,13 +26,13 @@ export async function syncClerkUser() {
         `${clerkUser.firstName ?? ""} ${clerkUser.lastName ?? ""}`.trim() ||
         email.split("@")[0];
 
+    const rawRole = (clerkUser.unsafeMetadata as { role?: string })?.role ?? "PLAYER";
+    const validRoles: Role[] = ["PLAYER", "ORGANIZER", "ADMIN"];
+    const role: Role = validRoles.includes(rawRole as Role) ? (rawRole as Role) : "PLAYER";
+
     return prisma.user.upsert({
         where: { clerkId: clerkUser.id },
-        update: { email, fullName },
-        create: {
-            clerkId: clerkUser.id,
-            email,
-            fullName,
-        },
+        update: { email, fullName, role },
+        create: { clerkId: clerkUser.id, email, fullName, role },
     });
 }

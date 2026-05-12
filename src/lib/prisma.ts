@@ -1,7 +1,22 @@
 import { PrismaClient } from "@prisma/client";
+import { PrismaNeonHttp } from "@prisma/adapter-neon";
 
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
+type G = typeof globalThis & { _prisma?: PrismaClient };
 
-export const prisma = globalForPrisma.prisma ?? new PrismaClient();
+function build(): PrismaClient {
+  const url = process.env.DATABASE_URL;
+  if (!url) throw new Error("DATABASE_URL is not set");
+  return new PrismaClient({ adapter: new PrismaNeonHttp(url, {}) });
+}
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+function instance(): PrismaClient {
+  const g = globalThis as G;
+  if (!g._prisma) g._prisma = build();
+  return g._prisma;
+}
+
+export const prisma: PrismaClient = new Proxy({} as PrismaClient, {
+  get(_, prop) {
+    return Reflect.get(instance(), prop);
+  },
+});

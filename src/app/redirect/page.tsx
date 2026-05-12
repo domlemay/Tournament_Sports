@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { prisma } from "@/lib/prisma";
+import { syncClerkUser } from "@/lib/auth";
 
 export default async function RedirectPage() {
   const { userId } = await auth();
@@ -9,9 +9,7 @@ export default async function RedirectPage() {
     redirect("/sign-in");
   }
 
-  const user = await prisma.user.findUnique({
-    where: { clerkId: userId },
-  });
+  const user = await syncClerkUser();
 
   if (!user) {
     redirect("/sign-in");
