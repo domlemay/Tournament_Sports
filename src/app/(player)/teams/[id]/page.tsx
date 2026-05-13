@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { createJoinRequest } from "@/app/server/actions/join-requests";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -50,35 +50,7 @@ export default async function TeamDetailPage({
   const isSuccess = sp.success === "join";
   const joinError = sp.e_join;
 
-  async function requestToJoin() {
-    "use server";
-    const { userId: uid } = await auth();
-    if (!uid) redirect("/sign-in");
-
-    const user = await prisma.user.findUnique({ where: { clerkId: uid } });
-    if (!user) redirect("/sign-in");
-
-    const t = await prisma.team.findUnique({
-      where: { id },
-      include: { _count: { select: { members: true } } },
-    });
-    if (!t) redirect("/teams");
-    if (t._count.members >= t.maxCapacity) {
-      redirect(`/teams/${id}?e_join=${encodeURIComponent("Cette équipe est complète")}`);
-    }
-
-    const existing = await prisma.joinRequest.findUnique({
-      where: { playerId_teamId: { playerId: user.id, teamId: id } },
-    });
-    if (existing) redirect(`/teams/${id}`);
-
-    await prisma.joinRequest.create({
-      data: { playerId: user.id, teamId: id, paymentStatus: "NOT_REQUIRED" },
-    });
-
-    revalidatePath(`/teams/${id}`);
-    redirect(`/teams/${id}?success=join`);
-  }
+  const joinAction = createJoinRequest.bind(null, id);
 
   return (
     <main className="min-h-screen bg-zinc-50 dark:bg-zinc-950 py-12 px-4">
@@ -206,12 +178,29 @@ export default async function TeamDetailPage({
             )}
 
             {!isMember && !existingRequest && spots > 0 && !isSuccess && (
-              <form action={requestToJoin}>
+              <form action={joinAction} className="space-y-3">
+                <div>
+                  <label
+                    htmlFor="message"
+                    className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5"
+                  >
+                    Message (optionnel)
+                  </label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    rows={3}
+                    placeholder="Présentez-vous brièvement…"
+                    className="w-full rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3.5 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-500 resize-none"
+                  />
+                </div>
                 <button
                   type="submit"
                   className="w-full rounded-lg bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-semibold py-2.5 hover:bg-zinc-700 dark:hover:bg-zinc-300 transition-colors cursor-pointer"
                 >
-                  Rejoindre l&apos;équipe
+                  {team.tournament.entryFee > 0
+                    ? `Rejoindre — ${team.tournament.entryFee} ${team.tournament.currency}`
+                    : "Rejoindre l'équipe"}
                 </button>
               </form>
             )}
