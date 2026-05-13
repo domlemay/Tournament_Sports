@@ -17,6 +17,13 @@ export async function requireUser() {
     return user;
 }
 
+export async function requireRole(role: Role) {
+    const user = await getCurrentUser();
+    if (!user) throw new Error("Non authentifié");
+    if (user.role !== role) throw new Error(`Rôle ${role} requis`);
+    return user;
+}
+
 export async function syncClerkUser() {
     const clerkUser = await currentUser();
     if (!clerkUser) return null;
