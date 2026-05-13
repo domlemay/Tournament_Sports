@@ -48,136 +48,120 @@ export default async function MatchesPage({ searchParams }: Props) {
   });
 
   return (
-    <main className="min-h-screen bg-zinc-50 dark:bg-zinc-950 py-12 px-4">
-      <div className="max-w-3xl mx-auto space-y-8">
-        <div>
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
-            Mes matchs
-          </h1>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            Matchs des équipes dont vous faites partie.
+    <div className="py-4 space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold text-navy-700">Mes matchs</h1>
+        <p className="mt-1 text-sm text-ink-500">
+          Matchs des équipes dont tu fais partie.
+        </p>
+      </div>
+
+      {/* Filtre */}
+      <div className="flex gap-2">
+        <Link
+          href="/matches?filter=upcoming"
+          className={`rounded-full px-5 py-2 text-sm font-semibold transition-colors ${
+            filter === "upcoming"
+              ? "bg-navy-700 text-white"
+              : "border border-ink-200 bg-surface text-ink-500 hover:bg-navy-50 hover:text-navy-700"
+          }`}
+        >
+          À venir
+        </Link>
+        <Link
+          href="/matches?filter=past"
+          className={`rounded-full px-5 py-2 text-sm font-semibold transition-colors ${
+            filter === "past"
+              ? "bg-navy-700 text-white"
+              : "border border-ink-200 bg-surface text-ink-500 hover:bg-navy-50 hover:text-navy-700"
+          }`}
+        >
+          Passés
+        </Link>
+      </div>
+
+      {matches.length === 0 ? (
+        <div className="rounded-2xl border border-ink-100 bg-surface p-14 text-center">
+          <p className="text-sm text-ink-500">
+            {filter === "upcoming"
+              ? "Aucun match à venir pour tes équipes."
+              : "Aucun match passé pour tes équipes."}
           </p>
         </div>
+      ) : (
+        <ul className="space-y-3">
+          {matches.map((match) => {
+            const isInTeamA = match.teamA.members.length > 0;
+            const myTeam = isInTeamA ? match.teamA : match.teamB;
+            const opponent = isInTeamA ? match.teamB : match.teamA;
+            const hasScore = match.scoreA !== null && match.scoreB !== null;
+            const myScore = isInTeamA ? match.scoreA : match.scoreB;
+            const oppScore = isInTeamA ? match.scoreB : match.scoreA;
 
-        {/* Filter toggle */}
-        <div className="flex gap-2">
-          <Link
-            href="/matches?filter=upcoming"
-            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
-              filter === "upcoming"
-                ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
-                : "bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-700"
-            }`}
-          >
-            À venir
-          </Link>
-          <Link
-            href="/matches?filter=past"
-            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
-              filter === "past"
-                ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
-                : "bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-700"
-            }`}
-          >
-            Passés
-          </Link>
-        </div>
+            const matchDate = new Date(match.date);
+            const dateStr = matchDate.toLocaleDateString("fr-CA", {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            });
+            const timeStr = matchDate.toLocaleTimeString("fr-CA", {
+              hour: "2-digit",
+              minute: "2-digit",
+            });
 
-        {/* Match list */}
-        {matches.length === 0 ? (
-          <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-10 text-center">
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              {filter === "upcoming"
-                ? "Aucun match à venir pour vos équipes."
-                : "Aucun match passé pour vos équipes."}
-            </p>
-          </div>
-        ) : (
-          <ul className="space-y-4">
-            {matches.map((match) => {
-              const isInTeamA = match.teamA.members.length > 0;
-              const myTeam = isInTeamA ? match.teamA : match.teamB;
-              const opponent = isInTeamA ? match.teamB : match.teamA;
-              const hasScore =
-                match.scoreA !== null && match.scoreB !== null;
-              const myScore = isInTeamA ? match.scoreA : match.scoreB;
-              const oppScore = isInTeamA ? match.scoreB : match.scoreA;
-
-              const matchDate = new Date(match.date);
-              const dateStr = matchDate.toLocaleDateString("fr-CA", {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              });
-              const timeStr = matchDate.toLocaleTimeString("fr-CA", {
-                hour: "2-digit",
-                minute: "2-digit",
-              });
-
-              return (
-                <li
-                  key={match.id}
-                  className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 space-y-3"
-                >
-                  <div className="flex items-start justify-between gap-4 flex-wrap">
-                    <div>
-                      <p className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">
-                        {myTeam.tournament.name}
-                      </p>
-                      <div className="mt-1 flex items-center gap-2 text-base font-semibold text-zinc-900 dark:text-zinc-100">
-                        <span>{myTeam.name}</span>
-                        <span className="text-zinc-400 dark:text-zinc-500 font-normal">
-                          vs
-                        </span>
-                        <span>{opponent.name}</span>
-                      </div>
-                    </div>
-
-                    {hasScore && (
-                      <div className="text-right">
-                        <p className="text-xs text-zinc-400 dark:text-zinc-500 mb-0.5">
-                          Score final
-                        </p>
-                        <p className="text-2xl font-bold tabular-nums text-zinc-900 dark:text-zinc-100">
-                          {myScore}&nbsp;–&nbsp;{oppScore}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex flex-wrap gap-x-5 gap-y-1 text-sm text-zinc-500 dark:text-zinc-400">
-                    <span>
-                      <span className="font-medium text-zinc-700 dark:text-zinc-300">
-                        Date :
-                      </span>{" "}
-                      {dateStr}
-                    </span>
-                    <span>
-                      <span className="font-medium text-zinc-700 dark:text-zinc-300">
-                        Heure :
-                      </span>{" "}
-                      {timeStr}
-                    </span>
-                    <span>
-                      <span className="font-medium text-zinc-700 dark:text-zinc-300">
-                        Lieu :
-                      </span>{" "}
-                      {match.location}
-                    </span>
-                  </div>
-
-                  {!hasScore && filter === "upcoming" && (
-                    <p className="text-xs text-zinc-400 dark:text-zinc-500 italic">
-                      Score non encore saisi
+            return (
+              <li
+                key={match.id}
+                className="rounded-2xl border border-ink-100 bg-surface p-5 shadow-sm"
+              >
+                <div className="flex items-start justify-between gap-4 flex-wrap">
+                  <div>
+                    <p className="text-xs font-semibold text-ink-400 uppercase tracking-wide mb-1">
+                      {myTeam.tournament.name}
                     </p>
+                    <div className="flex items-center gap-2 text-base font-bold text-navy-700">
+                      <span>{myTeam.name}</span>
+                      <span className="text-ink-300 font-normal text-sm">vs</span>
+                      <span>{opponent.name}</span>
+                    </div>
+                  </div>
+
+                  {hasScore && (
+                    <div className="text-right">
+                      <p className="text-xs text-ink-400 mb-0.5">Score final</p>
+                      <p className="font-display text-3xl text-navy-700 tabular-nums">
+                        {myScore}&nbsp;–&nbsp;{oppScore}
+                      </p>
+                    </div>
                   )}
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </div>
-    </main>
+                </div>
+
+                <div className="mt-3 pt-3 border-t border-ink-100 flex flex-wrap gap-x-5 gap-y-1 text-sm text-ink-500">
+                  <span>
+                    <span className="font-medium text-ink-700">Date :</span>{" "}
+                    {dateStr}
+                  </span>
+                  <span>
+                    <span className="font-medium text-ink-700">Heure :</span>{" "}
+                    {timeStr}
+                  </span>
+                  <span>
+                    <span className="font-medium text-ink-700">Lieu :</span>{" "}
+                    {match.location}
+                  </span>
+                </div>
+
+                {!hasScore && filter === "upcoming" && (
+                  <p className="mt-2 text-xs text-ink-400 italic">
+                    Score non encore saisi
+                  </p>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
   );
 }

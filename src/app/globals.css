@@ -1,38 +1,78 @@
 @import "tailwindcss";
 
+/* ── Design tokens ──────────────────────────────────────────── */
+@theme {
+  /* Navy */
+  --color-navy-900: #0f1c33;
+  --color-navy-800: #142240;
+  --color-navy-700: #18294a;
+  --color-navy-600: #1e3460;
+  --color-navy-500: #2d4a7a;
+  --color-navy-400: #4a6fa5;
+  --color-navy-200: #8faecf;
+  --color-navy-100: #d4dfef;
+  --color-navy-50:  #ebf0f7;
+
+  /* Red */
+  --color-red-700: #8b1520;
+  --color-red-600: #a31825;
+  --color-red-500: #c8202f;
+  --color-red-400: #e03545;
+  --color-red-100: #f5d0d3;
+  --color-red-50:  #fdf0f1;
+
+  /* Paper / surfaces */
+  --color-paper:       #faf8f4;
+  --color-surface:     #ffffff;
+  --color-surface-alt: #f5f3ee;
+
+  /* Ink */
+  --color-ink-900: #18294a;
+  --color-ink-700: #2d3748;
+  --color-ink-500: #4a5568;
+  --color-ink-400: #718096;
+  --color-ink-200: #cbd5e0;
+  --color-ink-100: #edf2f7;
+
+  /* Status */
+  --color-success-600: #15803d;
+  --color-success-100: #dcfce7;
+  --color-warning-600: #b45309;
+  --color-warning-100: #fef3c7;
+
+  /* Typography */
+  --font-sans:    var(--font-geist-sans), system-ui, sans-serif;
+  --font-mono:    var(--font-geist-mono), monospace;
+  --font-display: var(--font-bebas-neue), "Bebas Neue", sans-serif;
+}
+
+/* ── Base ───────────────────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #faf8f4;
+  --foreground: #18294a;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
 }
 
 input,
 textarea,
 select {
-  color: #111827;
+  color: #18294a;
 }
 
 input::placeholder,
 textarea::placeholder {
-  color: #6b7280;
+  color: #718096;
   opacity: 1;
+}
+
+/* Focus ring global */
+:focus-visible {
+  outline: 3px solid rgba(24, 41, 74, 0.2);
+  outline-offset: 2px;
 }

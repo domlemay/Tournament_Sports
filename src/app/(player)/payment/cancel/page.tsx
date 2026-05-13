@@ -2,23 +2,31 @@ import Link from "next/link";
 
 export default function PaymentCancelPage() {
   return (
-    <main className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center px-4">
-      <div className="max-w-md w-full bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm p-10 text-center space-y-4">
-        <div className="text-4xl text-zinc-400">✕</div>
-        <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
-          Paiement annulé
-        </h1>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          Le paiement a été annulé. Votre demande reste en attente de paiement
-          — vous pouvez la consulter dans vos demandes ou réessayer.
+    <div className="py-4 flex items-center justify-center min-h-[60vh]">
+      <div className="max-w-md w-full rounded-2xl border border-ink-100 bg-surface shadow-sm p-10 text-center space-y-4">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
+          <span className="text-2xl text-red-500 font-bold">✕</span>
+        </div>
+        <h1 className="text-xl font-bold text-navy-700">Paiement annulé</h1>
+        <p className="text-sm text-ink-500">
+          Le paiement a été annulé. Ta demande reste en attente de paiement —
+          tu peux la consulter dans tes demandes ou réessayer.
         </p>
-        <Link
-          href="/teams"
-          className="inline-block mt-2 rounded-lg bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-semibold px-6 py-2.5 hover:bg-zinc-700 dark:hover:bg-zinc-300 transition-colors"
-        >
-          Retour aux équipes
-        </Link>
+        <div className="flex flex-col sm:flex-row gap-3 justify-center pt-1">
+          <Link
+            href="/my-requests"
+            className="rounded-lg border border-ink-200 bg-surface text-sm font-semibold px-6 py-2.5 text-ink-700 hover:bg-navy-50 hover:text-navy-700 transition-colors"
+          >
+            Mes demandes
+          </Link>
+          <Link
+            href="/teams"
+            className="rounded-lg bg-navy-700 text-white text-sm font-semibold px-6 py-2.5 hover:bg-navy-800 transition-colors"
+          >
+            Retour aux équipes
+          </Link>
+        </div>
       </div>
-    </main>
+    </div>
   );
 }

@@ -11,9 +11,9 @@ const statusLabel: Record<string, string> = {
 };
 
 const statusClass: Record<string, string> = {
-  PENDING: "bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300",
-  ACCEPTED: "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300",
-  REJECTED: "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300",
+  PENDING: "bg-warning-100 text-warning-600",
+  ACCEPTED: "bg-success-100 text-success-600",
+  REJECTED: "bg-red-100 text-red-600",
 };
 
 export default async function MyRequestsPage() {
@@ -36,83 +36,87 @@ export default async function MyRequestsPage() {
   });
 
   return (
-    <main className="min-h-screen bg-zinc-50 dark:bg-zinc-950 py-12 px-4">
-      <div className="max-w-3xl mx-auto space-y-6">
-        <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
-          Mes demandes
-        </h1>
+    <div className="py-4 space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold text-navy-700">Mes demandes</h1>
+        <p className="mt-1 text-sm text-ink-500">
+          Suis l'état de tes demandes d'adhésion aux équipes.
+        </p>
+      </div>
 
-        {requests.length === 0 ? (
-          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm p-12 text-center text-sm text-zinc-500 dark:text-zinc-400">
-            Vous n&apos;avez pas encore fait de demande.{" "}
-            <Link
-              href="/teams"
-              className="underline hover:text-zinc-700 dark:hover:text-zinc-200"
-            >
-              Chercher une équipe
-            </Link>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {requests.map((req) => {
-              const canCancel =
-                req.status === "PENDING" && req.paymentStatus !== "PAID";
-              return (
-                <div
-                  key={req.id}
-                  className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm p-6"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="space-y-1 flex-1">
-                      <p className="font-semibold text-zinc-900 dark:text-zinc-100">
-                        {req.team.name}
+      {requests.length === 0 ? (
+        <div className="rounded-2xl border border-ink-100 bg-surface p-14 text-center">
+          <p className="text-sm text-ink-500">
+            Tu n&apos;as pas encore fait de demande.
+          </p>
+          <Link
+            href="/teams"
+            className="mt-3 inline-block text-sm font-medium text-navy-700 underline hover:text-navy-800"
+          >
+            Chercher une équipe
+          </Link>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {requests.map((req) => {
+            const canCancel =
+              req.status === "PENDING" && req.paymentStatus !== "PAID";
+            return (
+              <div
+                key={req.id}
+                className="rounded-2xl border border-ink-100 bg-surface p-5 shadow-sm"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="space-y-1 flex-1 min-w-0">
+                    <p className="font-semibold text-navy-700 truncate">
+                      {req.team.name}
+                    </p>
+                    <p className="text-sm text-ink-500">
+                      {req.team.tournament.sport} · {req.team.tournament.city}
+                    </p>
+                    <p className="text-xs text-ink-400">
+                      {req.team.tournament.name} ·{" "}
+                      {req.createdAt.toLocaleDateString("fr-CA", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </p>
+                    {req.message && (
+                      <p className="text-sm text-ink-600 italic pt-1">
+                        &ldquo;{req.message}&rdquo;
                       </p>
-                      <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                        {req.team.tournament.sport} · {req.team.tournament.city}
+                    )}
+                    {req.paymentStatus === "PENDING" && (
+                      <p className="text-xs font-medium text-warning-600 pt-1">
+                        Paiement en attente
                       </p>
-                      <p className="text-xs text-zinc-400 dark:text-zinc-500">
-                        {req.team.tournament.name} ·{" "}
-                        {req.createdAt.toLocaleDateString("fr-CA", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })}
-                      </p>
-                      {req.message && (
-                        <p className="text-sm text-zinc-600 dark:text-zinc-400 italic pt-1">
-                          &ldquo;{req.message}&rdquo;
-                        </p>
-                      )}
-                      {req.paymentStatus === "PENDING" && (
-                        <p className="text-xs text-orange-600 dark:text-orange-400 pt-1">
-                          Paiement en attente
-                        </p>
-                      )}
-                    </div>
-                    <div className="flex flex-col items-end gap-3 shrink-0">
-                      <span
-                        className={`text-xs font-medium px-2.5 py-1 rounded-full ${statusClass[req.status]}`}
-                      >
-                        {statusLabel[req.status]}
-                      </span>
-                      {canCancel && (
-                        <form action={cancelJoinRequest.bind(null, req.id)}>
-                          <button
-                            type="submit"
-                            className="text-xs text-red-500 hover:text-red-700 dark:hover:text-red-300 underline cursor-pointer"
-                          >
-                            Annuler
-                          </button>
-                        </form>
-                      )}
-                    </div>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col items-end gap-3 shrink-0">
+                    <span
+                      className={`text-xs font-semibold px-2.5 py-1 rounded-full uppercase tracking-wide ${statusClass[req.status]}`}
+                    >
+                      {statusLabel[req.status]}
+                    </span>
+                    {canCancel && (
+                      <form action={cancelJoinRequest.bind(null, req.id)}>
+                        <button
+                          type="submit"
+                          className="text-xs text-red-500 hover:text-red-700 underline cursor-pointer"
+                        >
+                          Annuler
+                        </button>
+                      </form>
+                    )}
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    </main>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
   );
 }

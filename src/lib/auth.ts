@@ -33,13 +33,22 @@ export async function syncClerkUser() {
         `${clerkUser.firstName ?? ""} ${clerkUser.lastName ?? ""}`.trim() ||
         email.split("@")[0];
 
-    const rawRole = (clerkUser.unsafeMetadata as { role?: string })?.role ?? "PLAYER";
-    const validRoles: Role[] = ["PLAYER", "ORGANIZER", "ADMIN"];
-    const role: Role = validRoles.includes(rawRole as Role) ? (rawRole as Role) : "PLAYER";
+    const metadataRole = (clerkUser.unsafeMetadata as { role?: string })?.role;
+    const elevatedRoles: Role[] = ["ORGANIZER", "ADMIN"];
+    const validRoles: Role[] = ["PLAYER", ...elevatedRoles];
+    const role: Role =
+        metadataRole && validRoles.includes(metadataRole as Role)
+            ? (metadataRole as Role)
+            : "PLAYER";
+
+    // Only push role from Clerk metadata when it's an elevated role.
+    // "PLAYER" in metadata must NOT overwrite a role that was promoted
+    // in-app (e.g. via "Devenir organisateur").
+    const syncRole = elevatedRoles.includes(metadataRole as Role);
 
     return prisma.user.upsert({
         where: { clerkId: clerkUser.id },
-        update: { email, fullName, role },
+        update: { email, fullName, ...(syncRole ? { role } : {}) },
         create: { clerkId: clerkUser.id, email, fullName, role },
     });
 }

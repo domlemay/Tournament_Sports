@@ -1,8 +1,9 @@
 "use client";
 
 import { useSignUp } from "@clerk/nextjs/legacy";
+import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { FormEvent } from "react";
 import Link from "next/link";
 
@@ -11,7 +12,12 @@ type Step = "role" | "form" | "verify";
 
 export default function SignUpPage() {
   const { signUp, setActive, isLoaded } = useSignUp();
+  const { isSignedIn } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    if (isSignedIn) router.replace("/redirect");
+  }, [isSignedIn, router]);
 
   const [step, setStep] = useState<Step>("role");
   const [role, setRole] = useState<Role>("PLAYER");
@@ -174,8 +180,7 @@ export default function SignUpPage() {
             </button>
           </div>
 
-          {/* Code mis en commentaire car non demandé, simplement ajouté d'un antibot vu que j'ai pris le clerk d'un de mes projets où je l'avais incorporé. */}
-          {/* <div id="clerk-captcha" /> */}
+          <div id="clerk-captcha" />
 
           {error && (
             <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
@@ -275,8 +280,7 @@ export default function SignUpPage() {
               </p>
             )}
 
-            {/* Code mis en commentaire car non demandé, simplement ajouté d'un antibot vu que j'ai pris le clerk d'un de mes projets où je l'avais incorporé. */}
-            {/* <div id="clerk-captcha" /> */}
+            <div id="clerk-captcha" />
 
             <button
               type="submit"

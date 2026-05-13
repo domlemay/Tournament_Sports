@@ -51,104 +51,131 @@ export default async function DashboardPage() {
   ];
 
   return (
-    <main className="min-h-screen bg-zinc-50 dark:bg-zinc-950 py-12 px-4">
-      <div className="max-w-5xl mx-auto space-y-10">
-        <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
-          Tableau de bord
-        </h1>
+    <div className="py-4 space-y-10">
+      <div>
+        <h1 className="text-2xl font-bold text-navy-700">Tableau de bord</h1>
+        <p className="mt-1 text-sm text-ink-500">
+          Vue d&apos;ensemble de tes tournois et des demandes en attente.
+        </p>
+      </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {stats.map((stat) => (
-            <div
-              key={stat.label}
-              className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm p-6"
-            >
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                {stat.label}
-              </p>
-              <p className="mt-2 text-4xl font-bold text-zinc-900 dark:text-zinc-100">
-                {stat.value}
-              </p>
-            </div>
-          ))}
+      {/* Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {stats.map((stat) => (
+          <div
+            key={stat.label}
+            className="rounded-2xl border border-ink-100 bg-surface shadow-sm p-6"
+          >
+            <p className="text-xs font-semibold text-ink-400 uppercase tracking-wide">
+              {stat.label}
+            </p>
+            <p className="mt-2 font-display text-5xl text-navy-700">
+              {stat.value}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      {/* Tournaments list */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-navy-700">Mes tournois</h2>
+          <Link
+            href="/tournaments/new"
+            className="rounded-lg bg-navy-700 text-white text-sm font-semibold px-4 py-2 hover:bg-navy-800 transition-colors"
+          >
+            + Nouveau tournoi
+          </Link>
         </div>
 
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-              Mes tournois
-            </h2>
+        {tournaments.length === 0 ? (
+          <div className="rounded-2xl border border-ink-100 bg-surface shadow-sm p-14 text-center">
+            <p className="text-sm text-ink-500">Aucun tournoi pour le moment.</p>
             <Link
               href="/tournaments/new"
-              className="rounded-lg bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-semibold px-4 py-2 hover:bg-zinc-700 dark:hover:bg-zinc-300 transition-colors"
+              className="mt-3 inline-block text-sm font-medium text-navy-700 underline hover:text-navy-800"
             >
-              + Nouveau tournoi
+              Créer ton premier tournoi
             </Link>
           </div>
-
-          {tournaments.length === 0 ? (
-            <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm p-12 text-center">
-              <p className="text-zinc-500 dark:text-zinc-400 text-sm">
-                Aucun tournoi pour le moment.
-              </p>
-            </div>
-          ) : (
-            <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-zinc-100 dark:border-zinc-800">
-                    <th className="text-left px-6 py-3.5 font-medium text-zinc-500 dark:text-zinc-400">Tournoi</th>
-                    <th className="text-left px-6 py-3.5 font-medium text-zinc-500 dark:text-zinc-400">Sport</th>
-                    <th className="text-left px-6 py-3.5 font-medium text-zinc-500 dark:text-zinc-400">Ville</th>
-                    <th className="text-left px-6 py-3.5 font-medium text-zinc-500 dark:text-zinc-400">Date</th>
-                    <th className="text-left px-6 py-3.5 font-medium text-zinc-500 dark:text-zinc-400">Équipes</th>
-                    <th className="text-left px-6 py-3.5 font-medium text-zinc-500 dark:text-zinc-400">Frais</th>
-                    <th className="text-right px-6 py-3.5 font-medium text-zinc-500 dark:text-zinc-400">Actions</th>
+        ) : (
+          <div className="rounded-2xl border border-ink-100 bg-surface shadow-sm overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-ink-100">
+                  <th className="text-left px-6 py-3.5 text-xs font-semibold text-ink-400 uppercase tracking-wide">
+                    Tournoi
+                  </th>
+                  <th className="text-left px-6 py-3.5 text-xs font-semibold text-ink-400 uppercase tracking-wide">
+                    Sport
+                  </th>
+                  <th className="text-left px-6 py-3.5 text-xs font-semibold text-ink-400 uppercase tracking-wide">
+                    Ville
+                  </th>
+                  <th className="text-left px-6 py-3.5 text-xs font-semibold text-ink-400 uppercase tracking-wide">
+                    Date
+                  </th>
+                  <th className="text-left px-6 py-3.5 text-xs font-semibold text-ink-400 uppercase tracking-wide">
+                    Équipes
+                  </th>
+                  <th className="text-left px-6 py-3.5 text-xs font-semibold text-ink-400 uppercase tracking-wide">
+                    Frais
+                  </th>
+                  <th className="text-right px-6 py-3.5 text-xs font-semibold text-ink-400 uppercase tracking-wide">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {tournaments.map((t, i) => (
+                  <tr
+                    key={t.id}
+                    className={`hover:bg-navy-50 transition-colors ${
+                      i < tournaments.length - 1
+                        ? "border-b border-ink-100"
+                        : ""
+                    }`}
+                  >
+                    <td className="px-6 py-4 font-medium text-navy-700">
+                      {t.name}
+                      {t.pendingRequests > 0 && (
+                        <span className="ml-2 inline-flex items-center rounded-full bg-warning-100 px-2 py-0.5 text-xs font-semibold text-warning-600">
+                          {t.pendingRequests} en attente
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-ink-600">{t.sport}</td>
+                    <td className="px-6 py-4 text-ink-600">{t.city}</td>
+                    <td className="px-6 py-4 text-ink-600">
+                      {t.startDate.toLocaleDateString("fr-CA", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </td>
+                    <td className="px-6 py-4 text-ink-600 tabular-nums">
+                      {t.teamCount}
+                    </td>
+                    <td className="px-6 py-4 text-ink-600">
+                      {t.entryFee === 0
+                        ? "Gratuit"
+                        : `${t.entryFee} ${t.currency}`}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <Link
+                        href={`/tournaments/${t.id}`}
+                        className="rounded-md border border-ink-200 px-3 py-1.5 text-xs font-medium text-ink-700 hover:bg-navy-50 hover:text-navy-700 hover:border-navy-200 transition-colors"
+                      >
+                        Gérer
+                      </Link>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {tournaments.map((t, i) => (
-                    <tr
-                      key={t.id}
-                      className={i < tournaments.length - 1 ? "border-b border-zinc-100 dark:border-zinc-800" : ""}
-                    >
-                      <td className="px-6 py-4 font-medium text-zinc-900 dark:text-zinc-100">
-                        {t.name}
-                        {t.pendingRequests > 0 && (
-                          <span className="ml-2 inline-flex items-center rounded-full bg-amber-100 dark:bg-amber-900 px-2 py-0.5 text-xs font-medium text-amber-700 dark:text-amber-300">
-                            {t.pendingRequests} en attente
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-zinc-600 dark:text-zinc-400">{t.sport}</td>
-                      <td className="px-6 py-4 text-zinc-600 dark:text-zinc-400">{t.city}</td>
-                      <td className="px-6 py-4 text-zinc-600 dark:text-zinc-400">
-                        {t.startDate.toLocaleDateString("fr-CA", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        })}
-                      </td>
-                      <td className="px-6 py-4 text-zinc-600 dark:text-zinc-400">{t.teamCount}</td>
-                      <td className="px-6 py-4 text-zinc-600 dark:text-zinc-400">
-                        {t.entryFee === 0 ? "Gratuit" : `${t.entryFee} ${t.currency}`}
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <Link
-                          href={`/tournaments/${t.id}`}
-                          className="rounded-md border border-zinc-200 dark:border-zinc-700 px-3 py-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
-                        >
-                          Gérer
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
-    </main>
+    </div>
   );
 }

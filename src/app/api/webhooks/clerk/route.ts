@@ -54,15 +54,20 @@ export async function POST(request: Request) {
       `${data.first_name ?? ""} ${data.last_name ?? ""}`.trim() ||
       email.split("@")[0];
 
-    const rawRole =
-      data.unsafe_metadata?.role ?? data.public_metadata?.role ?? "PLAYER";
-    const role: Role = ["PLAYER", "ORGANIZER", "ADMIN"].includes(rawRole)
-      ? (rawRole as Role)
-      : "PLAYER";
+    const metadataRole =
+      data.unsafe_metadata?.role ?? data.public_metadata?.role;
+    const elevatedRoles: Role[] = ["ORGANIZER", "ADMIN"];
+    const validRoles: Role[] = ["PLAYER", ...elevatedRoles];
+    const role: Role =
+      metadataRole && validRoles.includes(metadataRole as Role)
+        ? (metadataRole as Role)
+        : "PLAYER";
+
+    const syncRole = elevatedRoles.includes(metadataRole as Role);
 
     await prisma.user.upsert({
       where: { clerkId: data.id },
-      update: { email, fullName, role },
+      update: { email, fullName, ...(syncRole ? { role } : {}) },
       create: { clerkId: data.id, email, fullName, role },
     });
   }

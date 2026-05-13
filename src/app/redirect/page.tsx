@@ -22,6 +22,6 @@ export default async function RedirectPage() {
       redirect("/admin");
     case "PLAYER":
     default:
-      redirect("/profile");
+      redirect("/matches");
   }
 }
