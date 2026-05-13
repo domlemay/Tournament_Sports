@@ -174,10 +174,9 @@ export async function acceptJoinRequest(requestId: string, _formData: FormData) 
     redirect(`/requests?e=${encodeURIComponent("L'équipe est complète")}`);
   }
 
-  await prisma.team.update({
-    where: { id: req.teamId },
-    data: { members: { connect: { id: req.playerId } } },
-  });
+  // members: { connect } triggers an implicit transaction (NeonHTTP unsupported).
+  // Insert directly into the implicit join table instead.
+  await prisma.$executeRaw`INSERT INTO "_TeamMembers" ("A", "B") VALUES (${req.teamId}, ${req.playerId}) ON CONFLICT DO NOTHING`;
   await prisma.joinRequest.update({
     where: { id: requestId },
     data: { status: "ACCEPTED" },
