@@ -174,7 +174,8 @@ export default function SignUpPage() {
             </button>
           </div>
 
-          <div id="clerk-captcha" />
+          {/* Code mis en commentaire car non demandé, simplement ajouté d'un antibot vu que j'ai pris le clerk d'un de mes projets où je l'avais incorporé. */}
+          {/* <div id="clerk-captcha" /> */}
 
           {error && (
             <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
@@ -274,7 +275,8 @@ export default function SignUpPage() {
               </p>
             )}
 
-            <div id="clerk-captcha" />
+            {/* Code mis en commentaire car non demandé, simplement ajouté d'un antibot vu que j'ai pris le clerk d'un de mes projets où je l'avais incorporé. */}
+            {/* <div id="clerk-captcha" /> */}
 
             <button
               type="submit"
