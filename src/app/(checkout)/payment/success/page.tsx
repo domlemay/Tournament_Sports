@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 export default function PaymentSuccessPage() {
   return (
     <div className="py-4 flex items-center justify-center min-h-[60vh]">
@@ -12,12 +10,12 @@ export default function PaymentSuccessPage() {
           Ton paiement a été reçu. Ta demande est maintenant en attente
           d&apos;approbation par l&apos;organisateur.
         </p>
-        <Link
+        <a
           href="/my-requests"
           className="inline-block mt-2 rounded-lg bg-navy-700 text-white text-sm font-semibold px-6 py-2.5 hover:bg-navy-800 transition-colors"
         >
           Voir mes demandes
-        </Link>
+        </a>
       </div>
     </div>
   );

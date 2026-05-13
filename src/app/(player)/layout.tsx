@@ -11,7 +11,9 @@ export default async function PlayerLayout({
   children: React.ReactNode;
 }) {
   const { userId } = await auth();
-  if (!userId) redirect("/sign-in");
+  // Pass redirect_url so that if Clerk's token refresh momentarily fails,
+  // the user returns to the player section instead of the organizer dashboard.
+  if (!userId) redirect("/sign-in?redirect_url=%2Fmatches");
 
   const user = userId
     ? await prisma.user.findUnique({
@@ -66,6 +68,7 @@ export default async function PlayerLayout({
             {isOrganizer && (
               <Link
                 href="/dashboard"
+                prefetch={false}
                 className="ml-2 rounded-full border border-navy-200 bg-navy-50 px-3 py-1.5 text-xs font-semibold text-navy-700 hover:bg-navy-100 transition-colors"
               >
                 Espace organisateur →

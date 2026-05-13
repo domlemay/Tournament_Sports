@@ -73,7 +73,7 @@ export async function createJoinRequest(teamId: string, formData: FormData) {
         },
       ],
       metadata: { joinRequestId: joinRequest.id },
-      success_url: `${appUrl}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${appUrl}/api/payment/confirm?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${appUrl}/payment/cancel`,
     });
 
@@ -89,6 +89,56 @@ export async function createJoinRequest(teamId: string, formData: FormData) {
 
     redirect(session.url);
   }
+}
+
+export async function retryPayment(requestId: string, _formData: FormData) {
+  const user = await getPlayerUser();
+
+  const req = await prisma.joinRequest.findUnique({
+    where: { id: requestId },
+    include: {
+      team: {
+        include: {
+          tournament: { select: { entryFee: true, currency: true, name: true } },
+        },
+      },
+    },
+  });
+
+  if (!req || req.playerId !== user.id) redirect("/my-requests");
+  if (req.status !== "PENDING" || req.paymentStatus !== "PENDING") redirect("/my-requests");
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+
+  const session = await stripe.checkout.sessions.create({
+    mode: "payment",
+    payment_method_types: ["card"],
+    line_items: [
+      {
+        quantity: 1,
+        price_data: {
+          currency: req.team.tournament.currency.toLowerCase(),
+          unit_amount: req.team.tournament.entryFee * 100,
+          product_data: {
+            name: `Inscription — ${req.team.name}`,
+            description: req.team.tournament.name,
+          },
+        },
+      },
+    ],
+    metadata: { joinRequestId: req.id },
+    success_url: `${appUrl}/api/payment/confirm?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${appUrl}/payment/cancel`,
+  });
+
+  if (!session.url) redirect("/my-requests");
+
+  await prisma.joinRequest.update({
+    where: { id: req.id },
+    data: { stripeSessionId: session.id },
+  });
+
+  redirect(session.url);
 }
 
 export async function cancelJoinRequest(requestId: string, _formData: FormData) {
@@ -151,11 +201,23 @@ export async function rejectJoinRequest(requestId: string, _formData: FormData) 
 
   if (!req || req.team.tournament.organizerId !== organizer.id) redirect("/requests");
 
+  // Auto-refund if the player already paid
+  if (req.paymentStatus === "PAID" && req.stripeSessionId) {
+    try {
+      const session = await stripe.checkout.sessions.retrieve(req.stripeSessionId);
+      if (typeof session.payment_intent === "string") {
+        await stripe.refunds.create({ payment_intent: session.payment_intent });
+      }
+    } catch {
+      // Refund failure shouldn't block the rejection — log in production
+    }
+  }
+
   await prisma.joinRequest.update({
     where: { id: requestId },
     data: { status: "REJECTED" },
   });
 
   revalidatePath("/requests");
-  redirect("/requests");
+  redirect("/requests?refunded=1");
 }

@@ -26,6 +26,7 @@ export default async function RequestsPage({ searchParams }: PageProps) {
   const sp = await searchParams;
   const teamFilter = sp.team ?? "";
   const error = sp.e;
+  const refunded = sp.refunded === "1";
 
   const teams = await prisma.team.findMany({
     where: { tournament: { organizerId: organizer.id } },
@@ -36,7 +37,6 @@ export default async function RequestsPage({ searchParams }: PageProps) {
   const requests = await prisma.joinRequest.findMany({
     where: {
       status: "PENDING",
-      paymentStatus: { in: ["NOT_REQUIRED", "PAID"] },
       team: {
         ...(teamFilter ? { id: teamFilter } : {}),
         tournament: { organizerId: organizer.id },
@@ -51,7 +51,7 @@ export default async function RequestsPage({ searchParams }: PageProps) {
         },
       },
       team: {
-        include: { tournament: { select: { name: true } } },
+        include: { tournament: { select: { name: true, entryFee: true, currency: true } } },
       },
     },
     orderBy: { createdAt: "asc" },
@@ -94,6 +94,12 @@ export default async function RequestsPage({ searchParams }: PageProps) {
             Filtrer
           </button>
         </form>
+      )}
+
+      {refunded && (
+        <div className="rounded-lg border border-success-100 bg-success-100 px-4 py-3 text-success-600 text-sm font-medium">
+          Demande refusée. Le remboursement Stripe a été émis automatiquement.
+        </div>
       )}
 
       {error && (
@@ -139,6 +145,16 @@ export default async function RequestsPage({ searchParams }: PageProps) {
                       day: "numeric",
                     })}
                   </p>
+                  {req.paymentStatus === "PAID" && (
+                    <span className="inline-block mt-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-700">
+                      Paiement reçu — remboursement automatique si refusé
+                    </span>
+                  )}
+                  {req.paymentStatus === "PENDING" && (
+                    <span className="inline-block mt-1 rounded-full bg-ink-100 px-2.5 py-0.5 text-xs font-semibold text-ink-500">
+                      En attente de paiement
+                    </span>
+                  )}
                   {req.message && (
                     <p className="text-sm text-ink-600 italic pt-1">
                       &ldquo;{req.message}&rdquo;
@@ -149,7 +165,9 @@ export default async function RequestsPage({ searchParams }: PageProps) {
                   <form action={acceptJoinRequest.bind(null, req.id)}>
                     <button
                       type="submit"
-                      className="rounded-lg bg-success-600 hover:bg-green-700 text-white text-sm font-semibold px-4 py-2 transition-colors cursor-pointer"
+                      disabled={req.paymentStatus === "PENDING"}
+                      title={req.paymentStatus === "PENDING" ? "En attente de paiement du joueur" : undefined}
+                      className="rounded-lg bg-success-600 hover:bg-green-700 text-white text-sm font-semibold px-4 py-2 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                       Accepter
                     </button>
@@ -159,7 +177,7 @@ export default async function RequestsPage({ searchParams }: PageProps) {
                       type="submit"
                       className="rounded-lg border border-ink-200 bg-surface text-sm font-semibold px-4 py-2 text-ink-700 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors cursor-pointer"
                     >
-                      Refuser
+                      {req.paymentStatus === "PAID" ? "Refuser & rembourser" : "Refuser"}
                     </button>
                   </form>
                 </div>

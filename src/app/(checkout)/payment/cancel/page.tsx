@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 export default function PaymentCancelPage() {
   return (
     <div className="py-4 flex items-center justify-center min-h-[60vh]">
@@ -13,18 +11,18 @@ export default function PaymentCancelPage() {
           tu peux la consulter dans tes demandes ou réessayer.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center pt-1">
-          <Link
+          <a
             href="/my-requests"
             className="rounded-lg border border-ink-200 bg-surface text-sm font-semibold px-6 py-2.5 text-ink-700 hover:bg-navy-50 hover:text-navy-700 transition-colors"
           >
             Mes demandes
-          </Link>
-          <Link
+          </a>
+          <a
             href="/teams"
             className="rounded-lg bg-navy-700 text-white text-sm font-semibold px-6 py-2.5 hover:bg-navy-800 transition-colors"
           >
             Retour aux équipes
-          </Link>
+          </a>
         </div>
       </div>
     </div>

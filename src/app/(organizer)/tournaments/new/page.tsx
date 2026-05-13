@@ -106,7 +106,7 @@ export default async function NewTournamentPage({ searchParams }: PageProps) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label htmlFor="entryFee" className={labelClass}>
-                Frais d&apos;inscription
+                Frais d&apos;inscription (en $)
               </label>
               <input
                 id="entryFee"

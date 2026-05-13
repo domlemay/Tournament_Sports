@@ -56,7 +56,8 @@ export default async function OrganizerLayout({
               Demandes
             </Link>
             <Link
-              href="/teams"
+              href="/matches"
+              prefetch={false}
               className="ml-2 rounded-full border border-navy-200 bg-navy-50 px-3 py-1.5 text-xs font-semibold text-navy-700 hover:bg-navy-100 transition-colors"
             >
               Espace joueur →

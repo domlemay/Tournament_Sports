@@ -2,7 +2,7 @@ import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { cancelJoinRequest } from "@/app/server/actions/join-requests";
+import { cancelJoinRequest, retryPayment } from "@/app/server/actions/join-requests";
 
 const statusLabel: Record<string, string> = {
   PENDING: "En attente",
@@ -61,6 +61,8 @@ export default async function MyRequestsPage() {
           {requests.map((req) => {
             const canCancel =
               req.status === "PENDING" && req.paymentStatus !== "PAID";
+            const canRetryPayment =
+              req.status === "PENDING" && req.paymentStatus === "PENDING";
             return (
               <div
                 key={req.id}
@@ -100,6 +102,16 @@ export default async function MyRequestsPage() {
                     >
                       {statusLabel[req.status]}
                     </span>
+                    {canRetryPayment && (
+                      <form action={retryPayment.bind(null, req.id)}>
+                        <button
+                          type="submit"
+                          className="rounded-lg bg-navy-700 text-white text-xs font-semibold px-3 py-1.5 hover:bg-navy-800 transition-colors cursor-pointer"
+                        >
+                          Payer maintenant
+                        </button>
+                      </form>
+                    )}
                     {canCancel && (
                       <form action={cancelJoinRequest.bind(null, req.id)}>
                         <button
