@@ -174,16 +174,14 @@ export async function acceptJoinRequest(requestId: string, _formData: FormData) 
     redirect(`/requests?e=${encodeURIComponent("L'équipe est complète")}`);
   }
 
-  await prisma.$transaction([
-    prisma.team.update({
-      where: { id: req.teamId },
-      data: { members: { connect: { id: req.playerId } } },
-    }),
-    prisma.joinRequest.update({
-      where: { id: requestId },
-      data: { status: "ACCEPTED" },
-    }),
-  ]);
+  await prisma.team.update({
+    where: { id: req.teamId },
+    data: { members: { connect: { id: req.playerId } } },
+  });
+  await prisma.joinRequest.update({
+    where: { id: requestId },
+    data: { status: "ACCEPTED" },
+  });
 
   revalidatePath("/requests");
   redirect("/requests");
